@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0A0B0D">
+<title>Coach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#0A0B0D;--card:#16181D;--card2:#1C1F26;--line:rgba(255,255,255,.07);
+--ink:#F2F4F7;--mut:#868D98;--grn:#34E29B;--grn2:#1FB875;--red:#FF5A5F;--amb:#FFC24B}
+body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,sans-serif;
+font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;
+padding:env(safe-area-inset-top) 0 calc(86px + env(safe-area-inset-bottom));overflow-x:hidden}
+.wrap{max-width:560px;margin:0 auto;padding:14px 18px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:8px 2px 16px}
+.top .hi{font-size:20px;font-weight:600}.top .dt{font-size:12px;color:var(--mut)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;margin-bottom:14px}
+.hero{background:radial-gradient(120% 120% at 50% 0%,#1a2a22 0%,var(--card) 55%);text-align:center;padding:26px 20px 22px}
+.ringwrap{position:relative;width:208px;height:208px;margin:2px auto 6px}
+.ringwrap .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ringwrap .lbl{font-size:11px;letter-spacing:.18em;color:var(--mut);text-transform:uppercase}
+.ringwrap .age{font-size:62px;font-weight:700;line-height:1;margin-top:2px}
+.ringwrap .age small{font-size:20px;font-weight:600;color:var(--mut)}
+.status{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--grn);
+background:rgba(52,226,155,.1);padding:6px 13px;border-radius:30px;margin-top:4px}
+.status.beh{color:var(--amb);background:rgba(255,194,75,.1)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.sub{font-size:12.5px;color:var(--mut);margin-top:12px}
+.eyebrow{font-size:11px;letter-spacing:.16em;color:var(--mut);text-transform:uppercase;margin:4px 2px 12px;font-weight:600}
+.moneybig{font-size:38px;font-weight:700;letter-spacing:-.01em}.moneybig .rs{font-size:24px;color:var(--mut);font-weight:600}
+.jarrow{display:flex;gap:8px;margin-top:18px;justify-content:space-between}
+.jar{flex:1;text-align:center}.jar .jn{font-size:11px;color:var(--mut);margin-top:6px}
+.jar .jv{font-size:12px;font-weight:600;margin-top:1px}
+.minr{position:relative;width:54px;height:54px;margin:0 auto}
+.minr .e{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px}
+.stat2{display:flex;gap:12px}.stat2 .card{flex:1;margin:0;text-align:center;padding:18px 12px}
+.stat2 .n{font-size:30px;font-weight:700}.stat2 .k{font-size:11px;color:var(--mut);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+.mc{display:flex}.mc>div{flex:1;text-align:center;padding:14px 6px}
+.mc .k{font-size:10px;color:var(--mut);letter-spacing:.08em;text-transform:uppercase}.mc .a{font-size:26px;font-weight:700;margin-top:5px}
+.mc .a.g{color:var(--grn)}.mc .div{width:1px;background:var(--line);flex:none;margin:8px 0}
+.lrow{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.lrow:last-child{border:0}.lrow .v{font-weight:600}
+label{display:block;font-size:12px;color:var(--mut);margin:16px 2px 7px;font-weight:500}
+input,select{width:100%;background:#0E1014;border:1px solid var(--line);color:var(--ink);font-family:inherit;
+font-size:16px;padding:14px 15px;border-radius:14px;font-variant-numeric:tabular-nums}
+button{width:100%;background:var(--grn);color:#04130C;border:0;font-family:inherit;font-weight:700;font-size:15px;
+padding:15px;border-radius:30px;margin-top:14px;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.verdict{border-radius:16px;padding:16px;margin-top:16px;font-size:14px;line-height:1.55;background:var(--card2)}
+.verdict.no{box-shadow:inset 0 0 0 1px var(--red)}.verdict.yes{box-shadow:inset 0 0 0 1px var(--grn)}
+.verdict b{color:var(--ink)}
+.banner{background:rgba(52,226,155,.12);color:var(--grn);border-radius:14px;padding:13px 15px;margin-bottom:14px;font-size:13.5px}
+.modal-bg{position:fixed;inset:0;background:rgba(5,6,8,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:50;display:flex;align-items:flex-end;justify-content:center;padding:0 0 env(safe-area-inset-bottom)}
+.modal{background:var(--card);width:100%;max-width:560px;border-radius:24px 24px 0 0;padding:26px 22px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -20px 60px rgba(0,0,0,.5);animation:slideup .32s cubic-bezier(.2,.7,.2,1)}
+@keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal h2{font-size:23px;font-weight:700;letter-spacing:-.01em}
+.modal .ci-q{font-size:15px;line-height:1.5;margin:4px 0 4px}
+.modal .skip{color:var(--mut);font-size:13px;cursor:pointer}
+.empty{border:1px dashed var(--line);border-radius:18px;padding:24px 18px;color:var(--mut);font-size:13.5px;line-height:1.65}
+.empty b{color:var(--ink)}.note{color:var(--mut);font-size:12.5px;line-height:1.6;margin-top:12px;padding:0 2px}
+.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,11,13,.86);backdrop-filter:blur(18px);
+border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.nav .in{max-width:560px;margin:0 auto;display:flex;height:64px}
+.nav a{flex:1;display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;
+color:var(--mut);font-size:10.5px;font-weight:500;cursor:pointer}
+.nav a .i{font-size:18px;opacity:.6}.nav a.on{color:var(--grn)}.nav a.on .i{opacity:1}
+.fade{animation:f .35s ease}@keyframes f{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+.chat{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.msg{max-width:86%;padding:12px 15px;border-radius:18px;font-size:14px;line-height:1.5;white-space:pre-wrap}
+.msg.me{align-self:flex-end;background:var(--grn);color:#04130C;border-bottom-right-radius:6px}
+.msg.ai{align-self:flex-start;background:var(--card2);border-bottom-left-radius:6px}
+.msg.think{align-self:flex-start;color:var(--mut);background:transparent;font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 12px}
+.chip{font-size:12.5px;color:var(--ink);background:var(--card2);border:1px solid var(--line);padding:8px 13px;border-radius:30px;cursor:pointer}
+.askbar{display:flex;gap:8px;position:sticky;bottom:78px}
+.askbar input{flex:1;margin:0}.askbar button{width:auto;margin:0;padding:0 20px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="nav"><div class="in" id="nav"></div></div>
+<script>
+// NEUTRAL placeholders only — NO personal data ships in this file. Your real numbers load
+// from your private import (Settings → Restore) into localStorage, on-device only.
+const DEFAULTS={income:100000,
+ fixed:{parents:0,carEmi:0,emi1:0,emi2:0},
+ sinkMonthly:0,
+ jars:[["food","🍔","Food",8000],["fuel","⛽","Fuel",5000],["fun","🍺","Fun",8000],["cash","🧾","Bills & Extras",6000],["buffer","🎬","Buffer",3000]],
+ sip:20000,stepUp:5000,mfStart:0,
+ equityReturn:.11,inflation:.06,freedomNumber:20000000,startAge:30,
+ rolloffs:[],
+ mc:{lucky:0,median:0,unlucky:0},geminiKey:"",geminiModel:"gemini-2.0-flash"};
+function loadConfig(){const d=JSON.parse(JSON.stringify(DEFAULTS));try{const s=JSON.parse(localStorage.getItem("config"));if(s)for(const k in s)d[k]=s[k];}catch(e){}return d;}
+function saveConfig(){localStorage.setItem("config",JSON.stringify(CONFIG));}
+let CONFIG=loadConfig();
+// dynamic budget: spendable = income - fixed - SIP - sinking; jars always sum to spendable (proportions kept)
+function fixedTotal(){return Object.values(CONFIG.fixed||{}).reduce((a,b)=>a+(+b||0),0);}
+function spendable(){return Math.max(0, CONFIG.income - fixedTotal() - CONFIG.sip - (CONFIG.sinkMonthly||0));}
+function jarTotal(){return CONFIG.jars.reduce((s,j)=>s+(+j[3]||0),0);}
+function rescaleJars(){const sp=spendable(),cur=jarTotal();if(cur>0&&sp>0){const f=sp/cur;CONFIG.jars=CONFIG.jars.map(j=>[j[0],j[1],j[2],Math.round(j[3]*f)]);}}
+const GUESS={food:["zomato","swiggy","food","lunch","dinner","breakfast","restaurant","pizza","burger","coffee","cafe","eat","meal","biryani","grocer","tiffin"],
+ fuel:["fuel","petrol","diesel","gas","uber","ola","rapido","ride","cab","parking","toll","metro","bus","train"],
+ fun:["beer","drink","bar","pub","alcohol","movie","party","club","wine","liquor","outing","booze","whisky","vodka"],
+ cash:["ciggi","cigg","cigarette","smoke","cold drink","coke","pan","chai","tea","water","snack","tip","auto","recharge","medicine"]};
+const FV_FACTOR=2.18, DAILY_FREEDOM=50000/30;
+
+// Rohit's real mutual funds (from his CAS, 2026-06-21). units+cost fixed; current value pulled live.
+// ── PERSONAL DATA LAYER ──────────────────────────────────────────────────────
+// Holdings / transactions / SIP plan live ONLY in your phone's localStorage,
+// loaded from your private import. The shipped code carries NOTHING of yours.
+let PD={};try{PD=JSON.parse(localStorage.getItem("portfolio"))||{}}catch(e){}
+let HOLDINGS    = PD.HOLDINGS    || [];   // [{amfi,cat,units,cost,name,xirr,r3y,win24}]
+let OVERALL_XIRR= PD.OVERALL_XIRR|| 0;
+let USHOLDINGS  = PD.USHOLDINGS  || [];   // [{name,ticker,units,cost,lastPrice,tag}]
+const USDINR=94;   // fallback rate if live forex fails
+let usCache={rate:null,prices:{}}, usLoaded=false, usLoading=false;
+async function fetchPx(ticker){
+ const u="https://query1.finance.yahoo.com/v8/finance/chart/"+ticker;
+ const ways=[
+   ()=>fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(u)).then(r=>r.json()),
+   ()=>fetch("https://api.allorigins.win/get?url="+encodeURIComponent(u)).then(r=>r.json()).then(j=>JSON.parse(j.contents)),
+   ()=>fetch("https://corsproxy.io/?url="+encodeURIComponent(u)).then(r=>r.json())
+ ];
+ for(const w of ways){for(let a=0;a<2;a++){try{const j=await w();const p=j&&j.chart&&j.chart.result[0].meta.regularMarketPrice; if(p)return p;}catch(e){await new Promise(r=>setTimeout(r,600));}}}
+ return null;
+}
+async function loadUS(){
+ if(usLoading||usLoaded)return; usLoading=true;
+ try{const r=await fetch("https://api.frankfurter.app/latest?from=USD&to=INR");const j=await r.json(); if(j.rates&&j.rates.INR)usCache.rate=j.rates.INR;}catch(e){}
+ for(const h of USHOLDINGS){ if(!h.ticker)continue; const p=await fetchPx(h.ticker); if(p)usCache.prices[h.ticker]=p; }
+ usLoaded=true; usLoading=false; render();
+}
+const BENCH={"Mid-cap":21.2,"Small-cap":19.8};  // Nifty Midcap150 & Smallcap250 real 3y CAGR (mftool, 2026-06-21)
+const IDEAL={"Large/Index":40,"Flexi-cap":20,"Mid-cap":20,"Small-cap":15,"International":5}; // sensible target for aggressive 31yo (US ETFs add ~5% intl on top)
+const CATCOLOR={"Large/Index":"#4F8DFD","Flexi-cap":"#A66CFF","Mid-cap":"#FFB23E","Small-cap":"#FF6B6B","International":"#34E29B"};
+let navsLoaded=false, navLoading=false;
+const histCache={}, COMP={};   // COMP[amfi]={nav,value,xirr,r3y,win24}; COMP.__overall, COMP.__total
+let SIP_PLAN  = PD.SIP_PLAN  || {};   // {amfi:monthlyAmount} — your SIP split (from import)
+const IDXMAP={"118989":"148807","127042":"148807","118778":"150892","120828":"150892"}; // fund->index proxy (generic)
+let CASHFLOWS = PD.CASHFLOWS || {};   // {amfi:[[YYYYMMDD,amt],...]} — your transactions (from import)
+const _D=s=>new Date(+s.slice(0,4),+s.slice(4,6)-1,+s.slice(6));
+function ymdToday(){const d=new Date();return ""+d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");}
+async function getHistory(code){if(histCache[code])return histCache[code];
+ for(let a=0;a<3;a++){try{const r=await fetch("https://api.mfapi.in/mf/"+code);const j=await r.json();
+  const h=(j.data||[]).map(x=>{const p=x.date.split("-");return[p[2]+p[1]+p[0],parseFloat(x.nav)];}).filter(x=>x[1]>0).sort((a,b)=>a[0]<b[0]?-1:1);
+  histCache[code]=h;return h;}catch(e){await new Promise(r=>setTimeout(r,700));}}return [];}
+function _cagr(h,y){if(h.length<2)return null;const[ed,en]=h[h.length-1];const d=_D(ed);d.setFullYear(d.getFullYear()-y);
+ const t=""+d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");let s=null;for(const[dd,n]of h){if(dd<=t)s=n;else break}return s?(Math.pow(en/s,1/y)-1)*100:null;}
+function _xirr(flows){if(flows.length<2)return null;flows=[...flows].sort((a,b)=>a[0]<b[0]?-1:1);const t0=_D(flows[0][0]);
+ const ys=flows.map(([d,a])=>[(_D(d)-t0)/(365*864e5),a]);const npv=r=>ys.reduce((s,[t,a])=>s+a/Math.pow(1+r,t),0);
+ let r=0.12;for(let i=0;i<200;i++){const f=npv(r),df=(npv(r+1e-6)-f)/1e-6;if(Math.abs(df)<1e-12)break;let r2=r-f/df;if(r2<-0.999)r2=-0.999;if(Math.abs(r2-r)<1e-8){r=r2;break}r=r2}return r*100;}
+function _win(fh,ih,m){const me=h=>{const o={};for(const[d,n]of h)o[d.slice(0,6)]=n;return o};const fm=me(fh),im=me(ih);
+ const k=Object.keys(fm).filter(x=>im[x]).sort().slice(-(m+1));let w=0,t=0;for(let i=1;i<k.length;i++){if(fm[k[i]]/fm[k[i-1]]-1>im[k[i]]/im[k[i-1]]-1)w++;t++}return t?w:null;}
+function effUnits(h){return h.units+(S.data.sipLog||[]).filter(s=>s.fund===h.amfi).reduce((a,s)=>a+s.units,0);}
+function effCost(h){return h.cost+(S.data.sipLog||[]).filter(s=>s.fund===h.amfi).reduce((a,s)=>a+s.amount,0);}
+function effFlows(amfi){return (CASHFLOWS[amfi]||[]).concat((S.data.sipLog||[]).filter(s=>s.fund===amfi).map(s=>[s.date,-s.amount]));}
+async function loadFunds(){   // FAST: latest NAV only → live value + live XIRR. r3y/win24 use embedded snapshots.
+ if(navLoading||navsLoaded)return;navLoading=true;
+ const td=ymdToday();
+ await Promise.all(HOLDINGS.map(async h=>{
+  try{const r=await fetch("https://api.mfapi.in/mf/"+h.amfi+"/latest");const j=await r.json();
+   if(j&&j.data&&j.data[0]){const nav=parseFloat(j.data[0].nav), val=effUnits(h)*nav, flows=effFlows(h.amfi);
+    COMP[h.amfi]={nav,value:val,xirr:_xirr([...flows,[td,Math.round(val)]])};}}catch(e){}
+ }));
+ let totVal=0,allFlows=[];
+ for(const h of HOLDINGS){if(COMP[h.amfi]){totVal+=COMP[h.amfi].value; allFlows=allFlows.concat(effFlows(h.amfi));}}
+ if(totVal>0){allFlows.push([td,Math.round(totVal)]); COMP.__overall=_xirr(allFlows); COMP.__total=totVal; S.data.mfCached=Math.round(totVal); save();}
+ navsLoaded=true;navLoading=false;render();
+}
+window.doSipDone=function(){const td=ymdToday();S.data.sipLog=S.data.sipLog||[];
+ if(!navsLoaded){S.sipMsg="Give it a sec — still loading your funds…";render();return;}
+ if(S.data.sipLog.some(s=>s.date.slice(0,6)===td.slice(0,6))){S.sipMsg="This month's SIP is already logged ✓ — nothing to add.";render();return;}
+ for(const code in SIP_PLAN){const c=COMP[code]; if(!c||!c.nav)continue;
+  S.data.sipLog.push({date:td,fund:code,amount:SIP_PLAN[code],units:SIP_PLAN[code]/c.nav});}
+ save(); navsLoaded=false; for(const k in COMP)delete COMP[k]; S.sipMsg="✅ This month's ₹"+fmt(Object.values(SIP_PLAN).reduce((a,b)=>a+b,0))+" SIP added — recomputing live…"; loadFunds(); render();}
+
+function curMonth(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
+function monthLabel(){return new Date().toLocaleString("en-US",{month:"long",year:"numeric"})}
+function load(){
+ let d;try{d=JSON.parse(localStorage.getItem("coach"))}catch(e){}d=d||{};
+ d.chat=d.chat||[]; d.months=d.months||{}; d.sipLog=d.sipLog||[];
+ d.advisorQueue=d.advisorQueue||["Your active mid/small funds only match their index — switch to cheaper index funds? (a rebalancing call)"];
+ d.pots=d.pots||{big:0,carSpent:0};
+ // migrate old flat v1 format -> per-month buckets (data survives updates)
+ if(d.entries||d.nospend){const m=curMonth(); d.months[m]=d.months[m]||{entries:[],nospend:[]};
+  d.months[m].entries=(d.months[m].entries||[]).concat(d.entries||[]);
+  d.months[m].nospend=(d.months[m].nospend||[]).concat(d.nospend||[]);
+  delete d.entries; delete d.nospend;}
+ d.v=2; return d;
+}
+function md(){const m=curMonth(); if(!S.data.months[m])S.data.months[m]={entries:[],nospend:[]}; return S.data.months[m]}
+let S={tab:"home", data:load(), verdict:null, msg:null, thinking:false};
+function save(){localStorage.setItem("coach",JSON.stringify(S.data))}
+
+function fmt(n){n=Math.round(n);return n.toLocaleString("en-IN")}
+function inr(n){if(n>=1e7)return(n/1e7).toFixed(2)+" Cr";if(n>=1e5)return(n/1e5).toFixed(2)+" L";return fmt(n)}
+function guess(note){note=(note||"").toLowerCase();for(const k in GUESS)if(GUESS[k].some(w=>note.includes(w)))return k;return"cash"}
+function jarStatus(){return CONFIG.jars.map(([k,e,nm,a])=>{const sp=md().entries.filter(x=>x.jar===k).reduce((s,x)=>s+x.amt,0);return{k,e,nm,a,sp,left:a-sp}})}
+function totalLeft(){return jarStatus().reduce((s,j)=>s+j.left,0)}
+function freedomDays(a){return a*FV_FACTOR/DAILY_FREEDOM}
+function savingsRate(){return Math.round(CONFIG.sip/CONFIG.income*100)}
+
+function fireAge(sipStart){
+ const eqr=Math.pow(1+CONFIG.equityReturn,1/12)-1, mi=Math.pow(1+CONFIG.inflation,1/12)-1;
+ let corpus=curCorpus(), sip=sipStart||CONFIG.sip, target=CONFIG.freedomNumber, y=2026,m=7;
+ for(let n=1;n<=35*12;n++){
+  const key=y+"-"+String(m).padStart(2,"0"); const ro=CONFIG.rolloffs.find(r=>r[0]===key); if(ro)sip+=ro[1];
+  corpus=corpus*(1+eqr)+sip; target=target*(1+mi);
+  if(corpus>=target)return CONFIG.startAge+n/12;
+  m++; if(m>12){m=1;y++} if(n%12===0){sip+=CONFIG.stepUp}
+ } return null;
+}
+function liveMF(){return (typeof COMP!=='undefined'&&COMP.__total)?COMP.__total:((S.data&&S.data.mfCached)||CONFIG.mfStart);}
+function usValueINR(){const rate=(typeof usCache!=='undefined'&&usCache.rate)||USDINR;
+ return USHOLDINGS.reduce((s,h)=>{const px=(typeof usCache!=='undefined'&&h.ticker&&usCache.prices[h.ticker])||h.lastPrice;return s+h.units*px*rate;},0);}
+function curCorpus(){return liveMF()+usValueINR();}   // MF (live) + US stocks (live) combined
+
+function ring(frac,size,sw,color){
+ const r=(size-sw)/2, c=2*Math.PI*r, off=c*(1-Math.max(0,Math.min(1,frac)));
+ return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+  <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="${sw}"/>
+  <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"
+   stroke-dasharray="${c}" stroke-dashoffset="${off}" transform="rotate(-90 ${size/2} ${size/2})"
+   style="transition:stroke-dashoffset .9s cubic-bezier(.4,0,.2,1)"/></svg>`;
+}
+
+function monthsBetween(a,b){const[ay,am]=a.split("-").map(Number),[by,bm]=b.split("-").map(Number);return (by-ay)*12+(bm-am);}
+function pots(){
+ const acc=Math.max(0,monthsBetween("2026-07",curMonth()))*4500;
+ const cs=(S.data.pots&&S.data.pots.carSpent)||0, carBal=acc-cs, big=(S.data.pots&&S.data.pots.big)||0;
+ const btn=(fn,txt)=>`<button class="ghost" style="width:auto;padding:5px 11px;margin:5px 0 0;font-size:11px;border-radius:20px" onclick="${fn}">${txt}</button>`;
+ return `<div class="eyebrow">Safety pots 🫙 <span style="text-transform:none;letter-spacing:0;color:var(--mut)">· accumulate, don't reset monthly</span></div>
+ <div class="card" style="padding:2px 18px">
+   <div class="lrow"><div><div style="font-size:14px">🚗 Car (insurance + service)</div><div class="sub" style="margin:3px 0 0">₹4,500/mo → ready for ~Jun 2027 renewal</div></div><div style="text-align:right"><div class="v">₹${fmt(carBal)}</div>${btn("potSpend('car')","spent")}</div></div>
+   <div class="lrow"><div><div style="font-size:14px">🎒 Big stuff (travel / gifts / phone)</div><div class="sub" style="margin:3px 0 0">fills from leftovers + extra income</div></div><div style="text-align:right"><div class="v">₹${fmt(big)}</div>${btn("potAdd()","add")} ${btn("potSpend('big')","spent")}</div></div></div>`;
+}
+function needsCheckin(){return S.data.checkin!==curMonth();}
+function checkinModal(){
+ const bl=CONFIG.income, step=S.checkinStep||0; let inner="";
+ if(step===0){
+  inner=`<div class="eyebrow">New month · ${monthLabel()}</div>
+   <h2>Quick check-in 👋</h2>
+   <p class="sub" style="margin:6px 0 18px">Takes 20 seconds. Keeps your freedom date honest.</p>
+   <div class="ci-q">Take-home this month — same as usual (<b style="color:var(--ink)">₹${fmt(bl)}</b>)?</div>
+   <button onclick="checkinSalary(true)">Yes — ₹${fmt(bl)}</button>
+   <div class="sub" style="margin:16px 0 7px">Different this month? Enter what landed:</div>
+   <input id="cisal" type="number" inputmode="numeric" placeholder="e.g. 124000">
+   <button class="ghost" onclick="checkinSalary(false)">Use this amount</button>`;
+ } else if(step===1){
+  const x=S.checkinExtra;
+  inner=`<div class="eyebrow">Extra this month</div>
+   <h2>+₹${fmt(x)} above your usual 🎉</h2>
+   <p class="sub" style="margin:6px 0 16px">This is the money that actually moves your freedom date — don't let it leak into the jars (those stay fixed). Where should it go?</p>
+   <button onclick="checkinExtraTo('invest')">📈 Invest it — lock in ~${freedomDays(x).toFixed(0)} freedom-days</button>
+   <button class="ghost" onclick="checkinExtraTo('emergency')">🛡️ Top up emergency fund</button>
+   <button class="ghost" onclick="checkinExtraTo('big')">🎒 Keep in Big-stuff pot</button>`;
+ } else {
+  inner=`<div class="eyebrow">Last thing</div>
+   <h2>Fixed costs still the same?</h2>
+   <p class="sub" style="margin:6px 0 4px">Parents ₹${fmt(CONFIG.fixed.parents)} · car EMI ₹${fmt(CONFIG.fixed.carEmi)} · other EMIs · SIP ₹${fmt(CONFIG.sip)}.</p>
+   <button onclick="checkinFixed(false)">Yes — all the same</button>
+   <button class="ghost" onclick="checkinFixed(true)">No — open Settings to update</button>`;
+ }
+ return `<div class="modal-bg"><div class="modal">${inner}<div style="text-align:center;margin-top:14px"><span class="skip" onclick="checkinSkip()">Skip for now</span></div></div></div>`;
+}
+function flags(){
+ const out=[]; const now=new Date(), ym=curMonth();
+ const ro={"2026-11":2967,"2027-03":2549,"2031-07":20083};
+ if(ro[ym]) out.push(`🎉 <b>An EMI just ended</b> — ₹${fmt(ro[ym])}/mo freed up. Send it straight to your SIP so it doesn't leak into spending. <span class="sub">(Bump your SIP in ⚙ Settings, or ask your coach.)</span>`);
+ const day=now.getDate(), dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(), left=totalLeft();
+ if(dim-day<=6 && left>1000) out.push(`🧹 <b>${dim-day} days left</b> and ₹${fmt(left)} still unspent. Sweep some into your SIP before the month resets? That's ~${freedomDays(left).toFixed(0)} freedom-days you could lock in.`);
+ const ip=(S.data.pots&&S.data.pots.investPending)||0;
+ if(ip>0) out.push(`📈 <b>₹${fmt(ip)} marked to invest</b> — have you moved it into your SIP yet? <span class="skip" style="color:var(--grn);text-decoration:underline" onclick="clearInvestPending()">Yes, done ✓</span>`);
+ (S.data.advisorQueue||[]).forEach(a=>out.push(`🧑 <b>Talk to your advisor:</b> ${a}`));
+ if(!out.length) return '';
+ return `<div class="eyebrow">For you right now</div>`+out.map(o=>`<div class="card" style="font-size:13.5px;line-height:1.6;border-left:3px solid var(--amb)">${o}</div>`).join('');
+}
+function home(){
+ const age=fireAge(), prog=curCorpus()/CONFIG.freedomNumber, sr=savingsRate(), tl=totalLeft(), nod=md().nospend.length, spent=md().entries.reduce((s,x)=>s+x.amt,0);
+ const onTrack=sr>=20;
+ const jh=jarStatus().map(j=>{const f=j.a?j.left/j.a:0;const col=j.left<0?"var(--red)":"var(--grn)";
+  return `<div class="jar"><div class="minr">${ring(f,54,5,col)}<div class="e">${j.e}</div></div>
+   <div class="jn">${j.nm}</div><div class="jv">${fmt(j.left)}</div></div>`}).join("");
+ return `<div class="card hero">
+   <div class="ringwrap">${ring(prog,208,10,"url(#g)")}
+     <svg width="0" height="0"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+       <stop offset="0" stop-color="#34E29B"/><stop offset="1" stop-color="#1FB875"/></linearGradient></defs></svg>
+     <div class="c"><div class="lbl">Freedom</div><div class="age">${age.toFixed(0)}<small> yrs</small></div></div></div>
+   <div class="status ${onTrack?'':'beh'}"><span class="dot"></span>${onTrack?'On track':'Falling behind'}</div>
+   <div class="sub">${inr(curCorpus())} of ${inr(CONFIG.freedomNumber)} invested · ${(prog*100).toFixed(1)}% of the climb</div>
+ </div>
+ ${flags()}
+ <div class="card"><div class="eyebrow">This month · free to spend</div>
+   <div class="moneybig"><span class="rs">₹</span>${fmt(tl)}</div>
+   ${nod?`<div class="sub">🎉 ${nod} no-spend day${nod>1?'s':''} so far</div>`:''}
+   <div class="jarrow">${jh}</div>
+   ${spent>0?`<div class="sub" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">Spent ₹${fmt(spent)} so far this month ≈ <b style="color:var(--amb)">${freedomDays(spent).toFixed(1)} freedom-days</b></div>`:''}</div>
+ ${pots()}`;
+}
+
+function spend(){
+ const opts=jarStatus().map(j=>`<option value="${j.k}">${j.e} ${j.nm}</option>`).join("");
+ let h="";
+ if(S.msg)h+=`<div class="banner">${S.msg}</div>`;
+ if(S.verdict){const v=S.verdict;h+=`<div class="verdict ${v.fits?'yes':'no'}"><b>${v.fits?'✓ Yes — it fits.':'✕ Over the jar.'}</b><br>
+   ₹${fmt(v.amt)} from ${v.nm} leaves <b>₹${fmt(v.after)}</b>. Costs ≈ <b>${v.days.toFixed(1)} freedom-days</b>.
+   ${v.fits?`<button onclick="confirmSpend(${v.amt},'${v.jar}')">Log it</button>`:''}</div>`}
+ h+=`<div class="card"><div class="eyebrow">I just spent</div>
+   <label>Amount</label><input id="lamt" type="number" inputmode="numeric" placeholder="0">
+   <label>On what</label><input id="lnote" type="text" placeholder="ciggis, zomato, petrol…">
+   <label>Jar</label><select id="ljar"><option value="auto">Auto-detect</option>${opts}</select>
+   <button onclick="doLog()">Log spend</button>
+   <button class="ghost" onclick="doNoday()">No-spend day</button></div>
+ <div class="card"><div class="eyebrow">Can I afford it?</div>
+   <label>Amount</label><input id="aamt" type="number" inputmode="numeric" placeholder="0">
+   <label>From jar</label><select id="ajar">${opts}</select>
+   <button class="ghost" onclick="doAfford()">Check</button></div>`;
+ const ents=md().entries;
+ if(ents.length){
+   const rows=ents.map((e,i)=>({e,i})).reverse().map(({e,i})=>{
+     const jopts=CONFIG.jars.map(j=>`<option value="${j[0]}"${j[0]===e.jar?' selected':''}>${j[1]} ${j[2]}</option>`).join("");
+     return `<div class="lrow"><div style="max-width:48%"><div style="font-size:14px">₹${fmt(e.amt)}${e.note?' · '+esc(e.note):''}</div><div class="sub">${(e.date||'').slice(5)}</div></div><div style="display:flex;gap:8px;align-items:center"><select onchange="moveSpend(${i},this.value)" style="font-size:12px;padding:7px 8px;width:auto;border-radius:10px">${jopts}</select><span onclick="delSpend(${i})" style="color:var(--red);font-size:22px;cursor:pointer;line-height:1">×</span></div></div>`;
+   }).join("");
+   h+=`<div class="eyebrow">This month's spends · tap a jar to move it, × to delete</div><div class="card" style="padding:2px 18px">${rows}</div>`;
+ }
+ return h;
+}
+
+function plan(){
+ const age=fireAge(), prog=curCorpus()/CONFIG.freedomNumber;
+ return `<div class="card hero" style="padding-top:22px">
+   <div class="eyebrow" style="margin-bottom:2px">Projected financial freedom</div>
+   <div class="age" style="font-size:60px;font-weight:700">${age.toFixed(0)}<small style="font-size:18px;color:var(--mut)"> yrs old</small></div>
+   <div class="sub">11% return · 6% inflation · ₹${fmt(CONFIG.sip)} SIP +₹${fmt(CONFIG.stepUp)}/yr</div></div>
+ <div class="eyebrow">10,000-run range</div>
+ <div class="card" style="padding:6px 0"><div class="mc">
+   <div><div class="k">Lucky</div><div class="a">${CONFIG.mc.lucky}</div></div><div class="div"></div>
+   <div><div class="k">Likely</div><div class="a g">${CONFIG.mc.median}</div></div><div class="div"></div>
+   <div><div class="k">Unlucky</div><div class="a">${CONFIG.mc.unlucky}</div></div></div></div>
+ <div class="eyebrow">At retirement</div>
+ <div class="card" style="padding:4px 18px">
+   <div class="lrow"><span>Journey so far</span><span class="v">${(prog*100).toFixed(1)}%</span></div>
+   <div class="lrow"><span>Invested today</span><span class="v">₹${inr(curCorpus())}</span></div>
+   <div class="lrow"><span>Savings rate</span><span class="v" style="color:var(--grn)">${savingsRate()}%</span></div></div>
+ <div class="note">Plan is conservative (≈2.7% withdrawal). The real lever for the early-40s is income growth, not saving harder.</div>`;
+}
+function invest(){
+ const rows=HOLDINGS.map(h=>{const c=COMP[h.amfi]||{}; const cost=effCost(h); const val=c.value!=null?c.value:cost;
+   return {...h,val,cost,gain:val-cost,gp:cost?(val-cost)/cost*100:0,xirr:c.xirr!=null?c.xirr:h.xirr,r3y:c.r3y!=null?c.r3y:h.r3y,win24:c.win24!=null?c.win24:h.win24,live:c.value!=null};});
+ const tv=rows.reduce((s,r)=>s+r.val,0), tc=rows.reduce((s,r)=>s+r.cost,0), tg=tv-tc, tgp=tc?tg/tc*100:0;
+ const ovx=COMP.__overall!=null?COMP.__overall:OVERALL_XIRR;
+ const cats={}; rows.forEach(r=>cats[r.cat]=(cats[r.cat]||0)+r.val);
+ const ord=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+ const bar=ord.map(([c,v])=>`<div style="height:100%;width:${v/tv*100}%;background:${CATCOLOR[c]||'#888'}"></div>`).join("");
+ const legend=ord.map(([c,v])=>`<div class="lrow"><span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${CATCOLOR[c]||'#888'};margin-right:9px"></span>${c}</span><span class="v">${(v/tv*100).toFixed(0)}% · ₹${fmt(v)}</span></div>`).join("");
+ const midSmall=((cats["Mid-cap"]||0)+(cats["Small-cap"]||0))/tv*100;
+ const list=rows.sort((a,b)=>b.val-a.val).map(r=>`<div class="lrow"><div style="max-width:58%"><div style="font-size:14px">${r.name}</div><div class="sub" style="margin:3px 0 0">${r.cat} · in ₹${fmt(r.cost)}</div></div><div style="text-align:right"><div class="v">₹${fmt(r.val)}</div><div class="sub" style="margin:3px 0 0">your <span style="color:${r.xirr>=0?'var(--grn)':'var(--red)'}">${r.xirr>=0?'+':''}${r.xirr}%</span> · fund 3y ${r.r3y}%</div></div></div>`).join("");
+ return `${S.sipMsg?`<div class="banner">${S.sipMsg}</div>`:''}
+ <div class="card hero" style="padding:22px 18px">
+   <div class="eyebrow" style="margin-bottom:2px">Your mutual funds${navsLoaded?'':' · computing live…'}</div>
+   <div class="moneybig"><span class="rs">₹</span>${fmt(tv)}</div>
+   <div class="sub">Invested ₹${fmt(tc)} · <span style="color:${tg>=0?'var(--grn)':'var(--red)'}">${tg>=0?'+':''}₹${fmt(tg)} (${tgp>=0?'+':''}${tgp.toFixed(1)}%)</span></div>
+   <div style="display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink);background:rgba(255,255,255,.05);padding:7px 14px;border-radius:30px;margin-top:14px">Your true return (XIRR) <b style="color:var(--amb)">${ovx.toFixed(1)}%/yr</b></div></div>
+ <button onclick="doSipDone()">✓ Mark this month's SIP done</button>
+ <div class="card" style="font-size:13px;line-height:1.65;color:var(--mut)">💡 <b style="color:var(--ink)">What XIRR means:</b> your *actual* yearly return, counting when you invested. Yours is <b style="color:var(--ink)">${ovx.toFixed(1)}%</b> — modest, because you invested a lot recently into a flat year. Your funds' long-term track record is far higher (15–21%), and that's what compounds over your 18-year runway.</div>
+ <div class="eyebrow">What you're invested in</div>
+ <div class="card"><div style="display:flex;height:14px;border-radius:7px;overflow:hidden;margin-bottom:8px">${bar}</div>${legend}</div>
+ ${(()=>{const ir=Object.keys(IDEAL).map(c=>{const cur=(cats[c]||0)/tv*100,id=IDEAL[c],gap=cur-id;
+   const act=Math.abs(gap)<4?['on target','var(--mut)']:gap>0?['trim','var(--amb)']:['add','var(--grn)'];
+   return `<div class="lrow"><span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${CATCOLOR[c]};margin-right:9px"></span>${c}</span><span class="v" style="font-size:13px;font-weight:500">${cur.toFixed(0)}% <span class="sub">→ aim ${id}%</span> <b style="color:${act[1]}">${act[0]}</b></span></div>`;}).join('');
+   return `<div class="eyebrow">Your ideal mix 🎯 <span style="text-transform:none;letter-spacing:0;color:var(--mut)">· target for an aggressive 31-yr-old</span></div>
+   <div class="card" style="padding:2px 18px">${ir}</div>
+   <div class="note">Not a rule — a sensible target. Your new SIP money already flows toward this (more large, ease mid/small). Nothing sold. Your US ETFs add ~5% international on top.</div>`;})()}
+ <div class="eyebrow">Your funds — <span style="text-transform:none;letter-spacing:0">your return vs the fund's 3-yr track record</span></div>
+ <div class="card" style="padding:2px 18px">${list}</div>
+ ${(()=>{const bf=rows.filter(r=>r.win24!=null); if(!bf.length)return '';
+   const br=bf.map(r=>{const pct=Math.round(r.win24/24*100),t=pct>=60?['consistently beats','var(--grn)']:pct>=45?['~coin-flip','var(--amb)']:['mostly lags','var(--red)'];
+     return `<div class="lrow"><div style="max-width:54%"><div style="font-size:14px">${r.name}</div><div class="sub" style="margin:3px 0 0">beat its index in ${r.win24} of last 24 months</div></div><div style="text-align:right"><div style="color:${t[1]};font-weight:600;font-size:14px">${pct}%</div><div class="sub" style="color:${t[1]};margin-top:2px">${t[0]}</div></div></div>`;}).join('');
+   const consistent=bf.filter(r=>r.win24/24>=0.6).length;
+   return `<div class="eyebrow">Beating the index, month after month? 📊</div>
+   <div class="card" style="padding:2px 18px">${br}</div>
+   <div class="card" style="font-size:13.5px;line-height:1.7;color:var(--ink)">Each active mid/small fund beats its index only about <b>half the months</b> — a coin-flip. ${consistent===0?'<b>None consistently beat it.</b> ':''}So they mostly deliver <b>index-like returns with random wobble</b> — the honest case for low-cost <b>index funds</b>: same result, lower fee, no manager risk.</div>`;})()}
+ <div class="eyebrow">What it means for freedom 🔥</div>
+ <div class="card" style="font-size:13.5px;line-height:1.75;color:var(--ink)">
+   Your "free at <b>${fireAge().toFixed(0)}</b>" plan assumes a steady <b>11%/yr</b> long-term. Your funds have comfortably beaten that historically (15–21%) — so the engine isn't optimistic. The job now is simply to <b>keep investing through flat years like this one</b> (which you already do). That discipline is what turns 4.9% today into the long-term number.</div>
+ <div class="eyebrow">Quick take</div>
+ <div class="card" style="font-size:13.5px;line-height:1.75;color:var(--ink)">
+   ✅ <b>All Direct plans</b> — zero commission eaten.<br>
+   ⚡ <b>${midSmall.toFixed(0)}% in mid &amp; small-cap</b> — aggressive: more growth, bigger swings. Fine for your runway.<br>
+   🧭 Genuinely diversified across large, mid, small, flexi &amp; international.</div>
+ ${(()=>{const rate=usCache.rate||USDINR;
+   USHOLDINGS.forEach(h=>{const px=(h.ticker&&usCache.prices[h.ticker])||h.lastPrice; h._val=h.units*px; h._live=!!(h.ticker&&usCache.prices[h.ticker]);});
+   const uv=USHOLDINGS.reduce((s,h)=>s+h._val,0),uc=USHOLDINGS.reduce((s,h)=>s+h.cost,0),ug=uc?(uv-uc)/uc*100:0;
+   const ul=USHOLDINGS.slice().sort((a,b)=>b._val-a._val).map(h=>{const gp=h.cost?(h._val-h.cost)/h.cost*100:0;return `<div class="lrow"><div style="max-width:58%"><div style="font-size:14px">${h.name}</div><div class="sub" style="margin:3px 0 0">${h.tag}${h._live?'':' · manual price'}</div></div><div style="text-align:right"><div class="v">₹${fmt(h._val*rate)}</div><div class="sub" style="margin:3px 0 0;color:${gp>=0?'var(--grn)':'var(--red)'}">${gp>=0?'+':''}${gp.toFixed(0)}%</div></div></div>`}).join("");
+   const usShare=uv*rate/((tv||1)+uv*rate)*100;
+   return `<div class="eyebrow">US stocks 🇺🇸 <span style="text-transform:none;letter-spacing:0;color:var(--mut)">· small satellite (${usShare.toFixed(0)}%)${usLoaded?'':' · loading live…'}</span></div>
+   <div class="card hero" style="padding:18px"><div class="moneybig" style="font-size:30px"><span class="rs">₹</span>${fmt(uv*rate)}</div>
+     <div class="sub">$${uv.toFixed(0)} · invested ₹${fmt(uc*rate)} · <span style="color:${ug>=0?'var(--grn)':'var(--red)'}">${ug>=0?'+':''}${ug.toFixed(0)}%</span> · ₹${rate.toFixed(1)}/$</div></div>
+   <div class="card" style="padding:2px 18px">${ul}</div>
+   <div class="card" style="font-size:13.5px;line-height:1.7;color:var(--ink)">🧭 <b>VTI</b> is index-quality (whole US market) — a fine long-term keeper. <b>Global X</b> is a thematic bet — it's flown, but it's a bet, not a core. Both tiny, so no worry.</div>`;})()}
+ <div class="note">Live values — MF from public NAV data, US from live market price + forex. Some MF nice-to-haves (overlap, sector, expense) need a fuller holdings feed.</div>`;
+}
+function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function coach(){
+ if(!CONFIG.geminiKey)return `<div class="empty"><b>Activate your AI coach — free.</b><br>It reasons over your real numbers and spending history to give honest, personal advice — not templates.<br><br><b>One-time setup (~2 min):</b><br>1. Get a free key at <b>aistudio.google.com/apikey</b><br>2. Open ⚙ Settings → paste it into “Gemini API key” → Save.</div>
+   <div class="note">Free. Your key stays only on this device. When the coach reasons, your current numbers go to Google's free Gemini to get the answer — the one trade for a smart, free advisor.</div>`;
+ const intro=`Hey Rohit — I've got your full picture: freedom age ${fireAge().toFixed(0)}, ${savingsRate()}% savings rate, this month's jars and spends. Ask me anything, or tap a starter.`;
+ const msgs=S.data.chat.map(m=>`<div class="msg ${m.role==='user'?'me':'ai'}">${esc(m.text)}</div>`).join("")||`<div class="msg ai">${intro}</div>`;
+ const starters=["How am I doing this month?","What should I do with a ₹15k raise?","Can I afford ₹4,000 headphones?"];
+ const chips=starters.map(c=>`<span class="chip" onclick="askCoach(${JSON.stringify(c).replace(/"/g,'&quot;')})">${c}</span>`).join("");
+ return `<div class="chat">${msgs}${S.thinking?`<div class="msg think">coaching…</div>`:""}</div>
+   <div class="chips">${chips}</div>
+   <div class="askbar"><input id="cask" type="text" placeholder="Ask your coach…" onkeydown="if(event.key==='Enter')sendAsk()"><button onclick="sendAsk()">Ask</button></div>`;
+}
+function snapshot(){
+ const js=jarStatus().map(j=>`${j.nm} ₹${fmt(j.left)}/₹${fmt(j.a)}`).join(", ");
+ const recent=md().entries.slice(-12).map(e=>`₹${fmt(e.amt)} ${e.note||e.jar}`).join("; ")||"none yet";
+ return `LIVE DATA (today):\n- Take-home ₹${fmt(CONFIG.income)}/mo; SIP ₹${fmt(CONFIG.sip)}/mo +₹${fmt(CONFIG.stepUp)}/yr; savings rate ${savingsRate()}%.\n- Projected freedom age ${fireAge().toFixed(1)} (Monte Carlo range ${CONFIG.mc.lucky}-${CONFIG.mc.unlucky}); target ₹${inr(CONFIG.freedomNumber)} (today's money); invested ₹${inr(curCorpus())} (${(curCorpus()/CONFIG.freedomNumber*100).toFixed(1)}% of goal).\n- This month jars left: ${js}. No-spend days: ${md().nospend.length}.\n- Recent spends: ${recent}.`;
+}
+function coachCtx(){return `You are Rohit's personal financial coach living inside his own app. Rohit is 31, in India (INR; SIP; lakhs & crores). His #1 goal: RETIRE EARLY (FIRE).
+STYLE: brutally honest, sharp critical-thinking advisor — NEVER a yes-man. Give a specific recommendation with numbers + short reasoning. Tie spends to his freedom date when relevant (~₹764 ≈ 1 freedom-day). Be concise (2-5 sentences), warm but direct; call out bad ideas plainly. You are NOT a SEBI-registered advisor — he executes decisions himself. Never invent figures — use the live data below.\n\n${snapshot()}`;}
+async function callGemini(history){
+ const model=CONFIG.geminiModel||"gemini-2.0-flash";
+ const url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=`+encodeURIComponent(CONFIG.geminiKey);
+ const body={system_instruction:{parts:[{text:coachCtx()}]},
+   contents:history.slice(-12).map(m=>({role:m.role==="user"?"user":"model",parts:[{text:m.text}]})),
+   generationConfig:{temperature:0.55,maxOutputTokens:700}};
+ const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+ const j=await r.json();
+ if(j.error)throw new Error(j.error.message||"API error");
+ return (j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts[0].text)||"(no reply)";
+}
+window.sendAsk=function(){const el=document.getElementById("cask");if(el&&el.value.trim())askCoach(el.value.trim())};
+window.askCoach=async function(q){
+ S.data.chat.push({role:"user",text:q});save();S.thinking=true;render();window.scrollTo(0,9e9);
+ try{const a=await callGemini(S.data.chat);S.data.chat.push({role:"coach",text:a})}
+ catch(e){S.data.chat.push({role:"coach",text:"⚠️ "+e.message+(/key|API|model|denied|invalid/i.test(e.message)?"  (check your Gemini key/model in ⚙ Settings)":"")})}
+ S.thinking=false;save();render();window.scrollTo(0,9e9)};
+function settings(){
+ const j=CONFIG.jars.map(x=>`<label>${x[1]} ${x[2]} jar (₹/mo)</label><input id="set_${x[0]}" type="number" inputmode="numeric" value="${x[3]}">`).join("");
+ return `<div class="card"><div class="eyebrow">Income & investing</div>
+   <label>Monthly take-home (₹)</label><input id="set_income" type="number" inputmode="numeric" value="${CONFIG.income}">
+   <label>Monthly SIP (₹)</label><input id="set_sip" type="number" inputmode="numeric" value="${CONFIG.sip}">
+   <label>Annual SIP step-up (₹)</label><input id="set_stepUp" type="number" inputmode="numeric" value="${CONFIG.stepUp}"></div>
+ <div class="card"><div class="eyebrow">Fixed costs — the only truly-fixed</div>
+   <label>To parents (₹/mo)</label><input id="set_parents" type="number" inputmode="numeric" value="${CONFIG.fixed.parents}">
+   <label>Car EMI (₹/mo)</label><input id="set_carEmi" type="number" inputmode="numeric" value="${CONFIG.fixed.carEmi}">
+   <label>Loan EMI #1 (₹/mo · ends Nov '26)</label><input id="set_emi1" type="number" inputmode="numeric" value="${CONFIG.fixed.emi1}">
+   <label>Loan EMI #2 (₹/mo · ends Mar '27)</label><input id="set_emi2" type="number" inputmode="numeric" value="${CONFIG.fixed.emi2}">
+   <div class="note">Change any of these and your spendable + jars auto-adjust when you Save. (Wifi, subscriptions etc. are NOT here — they're variable, logged in jars.)</div></div>
+ <div class="card" style="background:var(--card2)"><div class="eyebrow">Your month, computed</div>
+   <div class="lrow"><span>Income</span><span class="v">₹${fmt(CONFIG.income)}</span></div>
+   <div class="lrow"><span>− Fixed (parents + EMIs)</span><span class="v">₹${fmt(fixedTotal())}</span></div>
+   <div class="lrow"><span>− SIP (invest)</span><span class="v">₹${fmt(CONFIG.sip)}</span></div>
+   <div class="lrow"><span>− Safety pots</span><span class="v">₹${fmt(CONFIG.sinkMonthly||0)}</span></div>
+   <div class="lrow"><span><b>= Spendable (your jars)</b></span><span class="v" style="color:var(--grn)">₹${fmt(spendable())}</span></div></div>
+ <div class="card"><div class="eyebrow">Monthly jar amounts</div>${j}</div>
+ <div class="card"><div class="eyebrow">AI coach</div>
+   <label>Gemini API key — free at aistudio.google.com/apikey</label><input id="set_key" type="text" placeholder="paste your free key" value="${CONFIG.geminiKey||''}">
+   <label>Model</label><input id="set_model" type="text" value="${CONFIG.geminiModel||'gemini-2.0-flash'}"></div>
+ <button onclick="saveSettings()">Save & recompute</button>
+ <button class="ghost" onclick="resetSettings()">Reset to defaults</button>
+ <div class="note">Change your salary or SIP here anytime — the freedom age, savings rate and jars recompute instantly. Ask your coach what to actually DO with a change.</div>
+ <div class="card"><div class="eyebrow">Backup &amp; restore</div>
+   <button onclick="exportBackup()">⬇ Export my data to a file</button>
+   <label>Restore from a file</label>
+   <input id="set_file" type="file" accept="application/json,.json" onchange="importFile(event)" style="font-size:13px;padding:10px">
+   <label>…or paste a backup here</label>
+   <textarea id="set_restore" placeholder="paste backup text…" style="width:100%;min-height:70px;background:#0E1014;border:1px solid var(--line);color:var(--ink);font-family:inherit;font-size:13px;padding:12px;border-radius:14px"></textarea>
+   <button class="ghost" onclick="importBackup()">Restore from paste</button>
+   <div class="note">Your data lives ONLY on this phone. Export now and then (save the file to Files / email it to yourself) so a wipe or new phone can't erase your history.</div></div>`;
+}
+
+function render(){
+ const hi={home:"Hey Rohit",spend:"Spend",plan:"Your plan",invest:"Investments",coach:"Coach",settings:"Settings"}[S.tab];
+ const body={home,spend,plan,invest,coach,settings}[S.tab]();
+ document.getElementById("app").innerHTML=`<div class="wrap">
+   <div class="top"><div><div class="hi">${hi}</div><div class="dt">${monthLabel()}</div></div>
+     <div onclick="go('settings')" style="font-size:21px;color:var(--mut);cursor:pointer;padding:6px 4px">⚙</div></div>
+   <div class="fade" key="${S.tab}">${body}</div></div>`+(S.checkinOpen?checkinModal():"");
+ const nav=[["home","Home","◎"],["spend","Spend","＋"],["plan","Plan","◷"],["invest","Invest","▤"],["coach","Coach","✦"]];
+ document.getElementById("nav").innerHTML=nav.map(([t,l,i])=>`<a class="${S.tab===t?'on':''}" onclick="go('${t}')"><span class="i">${i}</span>${l}</a>`).join("");
+}
+function go(t){S.tab=t;S.verdict=null;S.msg=null;if(t!=="invest")S.sipMsg=null;if(t==="invest"){if(!navsLoaded)loadFunds();if(!usLoaded)loadUS();}render()}
+window.go=go;
+window.doLog=function(){const a=+document.getElementById("lamt").value;if(!a)return;
+ let j=document.getElementById("ljar").value;const note=document.getElementById("lnote").value;
+ if(j==="auto")j=guess(note); md().entries.push({date:new Date().toISOString().slice(0,10),amt:a,jar:j,note});save();
+ const nm=CONFIG.jars.find(x=>x[0]===j)[2]; S.msg=`Logged ₹${fmt(a)}${note?` “${note}”`:''} to ${nm}.`+(a>=500?` ≈ ${freedomDays(a).toFixed(1)} freedom-days.`:'');S.verdict=null;render()}
+window.doNoday=function(){const d=new Date().toISOString().slice(0,10);if(!md().nospend.includes(d))md().nospend.push(d);save();
+ S.msg=`No-spend day logged — ${md().nospend.length} this month. 🎉`;render()}
+window.doAfford=function(){const a=+document.getElementById("aamt").value;if(!a)return;const jar=document.getElementById("ajar").value;
+ const j=jarStatus().find(x=>x.k===jar);S.verdict={amt:a,jar,nm:j.nm,fits:a<=j.left,after:j.left-a,days:freedomDays(a)};S.msg=null;render()}
+window.checkinSalary=function(same){const bl=CONFIG.income;let amt=bl;
+ if(!same){amt=+document.getElementById("cisal").value||bl;} md().income=amt;
+ const extra=amt-bl; if(extra>0){S.checkinExtra=extra;S.checkinStep=1;} else {S.checkinStep=2;} save();render();}
+window.checkinExtraTo=function(dest){const x=S.checkinExtra||0;S.data.pots=S.data.pots||{big:0,carSpent:0};
+ if(dest==='invest')S.data.pots.investPending=(S.data.pots.investPending||0)+x;
+ else if(dest==='emergency')S.data.pots.emergency=(S.data.pots.emergency||0)+x;
+ else S.data.pots.big=(S.data.pots.big||0)+x;
+ S.checkinStep=2;save();render();}
+window.checkinFixed=function(open){S.data.checkin=curMonth();S.checkinOpen=false;S.checkinStep=0;save();
+ if(open){S.tab="settings";}render();}
+window.checkinSkip=function(){S.data.checkin=curMonth();S.checkinOpen=false;S.checkinStep=0;save();render();}
+window.clearInvestPending=function(){if(S.data.pots)S.data.pots.investPending=0;save();render();}
+window.moveSpend=function(i,jar){if(md().entries[i]){md().entries[i].jar=jar;save();render();}}
+window.delSpend=function(i){if(md().entries[i]){md().entries.splice(i,1);save();render();}}
+window.confirmSpend=function(a,jar){md().entries.push({date:new Date().toISOString().slice(0,10),amt:a,jar,note:"(checked)"});save();
+ const nm=CONFIG.jars.find(x=>x[0]===jar)[2];S.verdict=null;S.msg=`Logged ₹${fmt(a)} to ${nm}.`+(a>=500?` ≈ ${freedomDays(a).toFixed(1)} freedom-days.`:'');render()}
+window.saveSettings=function(){const num=id=>+document.getElementById(id).value||0;
+ CONFIG.income=num("set_income");CONFIG.sip=num("set_sip");CONFIG.stepUp=num("set_stepUp");
+ if(document.getElementById("set_parents"))CONFIG.fixed={parents:num("set_parents"),carEmi:num("set_carEmi"),emi1:num("set_emi1"),emi2:num("set_emi2")};
+ CONFIG.jars=CONFIG.jars.map(x=>[x[0],x[1],x[2],num("set_"+x[0])]);
+ rescaleJars();   // jars always sum to spendable (income − fixed − SIP − pots), proportions kept
+ const kf=document.getElementById("set_key"),mf=document.getElementById("set_model");
+ if(kf)CONFIG.geminiKey=kf.value.trim(); if(mf)CONFIG.geminiModel=mf.value.trim()||"gemini-2.0-flash";
+ saveConfig();S.tab="home";S.verdict=null;S.msg=null;render()}
+window.resetSettings=function(){localStorage.removeItem("config");CONFIG=loadConfig();S.tab="home";render()}
+window.potAdd=function(){const v=prompt("Add how much to your Big-stuff pot? (₹)");const n=+v;if(n>0){S.data.pots=S.data.pots||{big:0,carSpent:0};S.data.pots.big=(S.data.pots.big||0)+n;save();render();}}
+window.potSpend=function(pot){const v=prompt("Spent how much from this pot? (₹)");const n=+v;if(n>0){S.data.pots=S.data.pots||{big:0,carSpent:0};if(pot==="car")S.data.pots.carSpent=(S.data.pots.carSpent||0)+n;else S.data.pots.big=Math.max(0,(S.data.pots.big||0)-n);save();render();}}
+window.exportBackup=function(){const payload=JSON.stringify({v:2,when:ymdToday(),config:CONFIG,data:S.data,portfolio:{HOLDINGS,OVERALL_XIRR,USHOLDINGS,SIP_PLAN,CASHFLOWS}});
+ try{const blob=new Blob([payload],{type:"application/json"});const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download="coach-backup-"+ymdToday()+".json";document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),3000);}catch(e){}
+ const ta=document.getElementById("set_restore"); if(ta){ta.value=payload; ta.select&&ta.select();}}
+window.importFile=function(ev){const f=ev.target.files&&ev.target.files[0];if(!f)return;
+ const rd=new FileReader();rd.onload=function(){const ta=document.getElementById("set_restore");if(ta)ta.value=rd.result;window.importBackup();};rd.readAsText(f);}
+window.importBackup=function(){try{const v=(document.getElementById("set_restore").value||"").trim();if(!v)return;
+ const o=JSON.parse(v); if(o.config)CONFIG=o.config; if(o.data)S.data=o.data;
+ if(o.portfolio){const p=o.portfolio;
+   HOLDINGS=p.HOLDINGS||[]; OVERALL_XIRR=p.OVERALL_XIRR||0; USHOLDINGS=p.USHOLDINGS||[];
+   SIP_PLAN=p.SIP_PLAN||{}; CASHFLOWS=p.CASHFLOWS||{};
+   localStorage.setItem("portfolio",JSON.stringify(p));
+   usLoaded=false; usCache={rate:null,prices:{}};}
+ saveConfig(); save(); navsLoaded=false; for(const k in COMP)delete COMP[k];
+ S.tab="home"; S.msg=null; render(); loadFunds(); loadUS();}catch(e){alert("Couldn't read that backup. Paste the full file contents and try again.");}}
+S.checkinOpen=needsCheckin(); S.checkinStep=0;   // first open of a new month → run the check-in
+render(); loadFunds(); loadUS();   // both fast now (latest price only) → live corpus on Home from open
+</script>
+</body>
+</html>
