@@ -270,6 +270,7 @@ function checkinModal(){
 }
 function flags(){
  const out=[]; const now=new Date(), ym=curMonth();
+ const ca=topCoachAlert(); if(ca) out.push(ca);
  const ro={"2026-11":2967,"2027-03":2549,"2031-07":20083};
  if(ro[ym]) out.push(`🎉 <b>An EMI just ended</b> — ₹${fmt(ro[ym])}/mo freed up. Send it straight to your SIP so it doesn't leak into spending. <span class="sub">(Bump your SIP in ⚙ Settings, or ask your coach.)</span>`);
  const day=now.getDate(), dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(), left=totalLeft();
@@ -407,16 +408,64 @@ function invest(){
 }
 function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
 function coach(){
- if(!CONFIG.geminiKey)return `<div class="empty"><b>Activate your AI coach — free.</b><br>It reasons over your real numbers and spending history to give honest, personal advice — not templates.<br><br><b>One-time setup (~2 min):</b><br>1. Get a free key at <b>aistudio.google.com/apikey</b><br>2. Open ⚙ Settings → paste it into “Gemini API key” → Save.</div>
-   <div class="note">Free. Your key stays only on this device. When the coach reasons, your current numbers go to Google's free Gemini to get the answer — the one trade for a smart, free advisor.</div>`;
+ const ins=coachInsights();
+ const col=t=>t==='warn'?'var(--amb)':t==='good'?'var(--grn)':'var(--line)';
+ const cards=ins.map(i=>`<div class="card" style="border-left:3px solid ${col(i.tone)};font-size:13.5px;line-height:1.65;display:flex;gap:11px;align-items:flex-start"><span style="font-size:19px;line-height:1.2">${i.icon}</span><span>${i.text}</span></div>`).join("");
+ let h=`<div class="eyebrow">Your coach · watching your money 👀</div>${cards}`;
+ if(!CONFIG.geminiKey){
+   h+=`<div class="card" style="background:var(--card2)"><div class="eyebrow" style="margin-bottom:8px">Want to ask it questions too?</div>
+     <div style="font-size:13px;line-height:1.65;color:var(--mut)">The coaching above is built in — free, instant, and it never leaves your phone. To also <b>type questions</b> ("can I afford ₹4k headphones?", "what do I do with a raise?"), add a free Gemini key at <b>aistudio.google.com/apikey</b> → ⚙ Settings. Totally optional — your money coach works without it.</div></div>`;
+   return h;
+ }
  const intro=`Hey Rohit — I've got your full picture: freedom age ${fireAge().toFixed(0)}, ${savingsRate()}% savings rate, this month's jars and spends. Ask me anything, or tap a starter.`;
  const msgs=S.data.chat.map(m=>`<div class="msg ${m.role==='user'?'me':'ai'}">${esc(m.text)}</div>`).join("")||`<div class="msg ai">${intro}</div>`;
  const starters=["How am I doing this month?","What should I do with a ₹15k raise?","Can I afford ₹4,000 headphones?"];
  const chips=starters.map(c=>`<span class="chip" onclick="askCoach(${JSON.stringify(c).replace(/"/g,'&quot;')})">${c}</span>`).join("");
- return `<div class="chat">${msgs}${S.thinking?`<div class="msg think">coaching…</div>`:""}</div>
+ return h+`<div class="eyebrow" style="margin-top:22px">Ask your coach</div><div class="chat">${msgs}${S.thinking?`<div class="msg think">coaching…</div>`:""}</div>
    <div class="chips">${chips}</div>
    <div class="askbar"><input id="cask" type="text" placeholder="Ask your coach…" onkeydown="if(event.key==='Enter')sendAsk()"><button onclick="sendAsk()">Ask</button></div>`;
 }
+// ── PATTERN COACH — deterministic, on-device, free. Reasons over his real logged
+// data every render; gets sharper as history accumulates. No LLM/key needed. ──
+const STOP=["the","and","for","with","from","that","this","checked","auto","some","bought","paid","got","new","one","two"];
+function coachInsights(){
+ const out=[], now=new Date(), ym=curMonth(), cur=md(), ents=cur.entries||[];
+ const day=now.getDate(), dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+ const mf=Math.max(day/dim,0.06), totalSpent=ents.reduce((s,e)=>s+e.amt,0);
+ const spend=jarStatus().reduce((s,j)=>s+j.a,0);
+ // 1) overall pace (needs a few days of signal)
+ if(day>=4 && totalSpent>0){
+   const proj=totalSpent/mf;
+   if(proj>spend*1.05) out.push({tone:'warn',icon:'📈',text:`At this pace you'll spend ~₹${fmt(proj)} this month — about <b>₹${fmt(proj-spend)} over</b> your ₹${fmt(spend)} budget. Trim ~₹${fmt(Math.round((proj-spend)/Math.max(1,dim-day)))}/day for the rest of the month to land on target.`});
+   else if(day>=10 && proj<spend*0.85){const spare=spend-proj; out.push({tone:'good',icon:'✅',text:`You're pacing <b>under</b> budget — on track to finish ~₹${fmt(spare)} below your jars ≈ <b>${freedomDays(spare).toFixed(1)} freedom-days</b> you could sweep into your SIP.`});}
+ }
+ // 2) per-jar: overspent or running hot
+ jarStatus().forEach(j=>{ if(j.a<=0)return;
+   if(j.left<0) out.push({tone:'warn',icon:j.e,text:`<b>${j.nm} is over by ₹${fmt(-j.left)}.</b> Pull the next few from another jar, or pause it till the month resets.`});
+   else if(day>=4 && j.sp>=500 && (j.sp/j.a)>mf+0.25) out.push({tone:'warn',icon:j.e,text:`${j.nm}: ₹${fmt(j.sp)} of ₹${fmt(j.a)} gone (${Math.round(j.sp/j.a*100)}%) but you're only ${Math.round(mf*100)}% through the month — ₹${fmt(j.left)} left for ${dim-day} days.`});
+ });
+ // 3) repeat-spend radar from notes
+ const wm={}; ents.forEach(e=>(e.note||"").toLowerCase().split(/[^a-z]+/).forEach(w=>{ if(w.length>=3&&!STOP.includes(w)){wm[w]=wm[w]||{n:0,sum:0};wm[w].n++;wm[w].sum+=e.amt;} }));
+ const rep=Object.entries(wm).filter(([w,v])=>v.n>=3).sort((a,b)=>b[1].sum-a[1].sum);
+ if(rep.length){const [w,v]=rep[0]; out.push({tone:'info',icon:'🔁',text:`"<b>${w}</b>" shows up ${v.n}× this month = ₹${fmt(v.sum)} ≈ ${freedomDays(v.sum).toFixed(1)} freedom-days. Your most-repeated spend — worth a conscious look.`});}
+ // 4) weekday tell (needs ~20 logged spends across history)
+ const ds=[0,0,0,0,0,0,0], dn=[0,0,0,0,0,0,0];
+ Object.values(S.data.months).forEach(m=>(m.entries||[]).forEach(e=>{const d=new Date((e.date||"")+"T00:00:00"); if(!isNaN(d)){ds[d.getDay()]+=e.amt;dn[d.getDay()]++;}}));
+ if(dn.reduce((a,b)=>a+b,0)>=20){const av=ds.map((s,i)=>dn[i]?s/dn[i]:0); let hi=0; for(let i=1;i<7;i++)if(av[i]>av[hi])hi=i;
+   const nm=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]; if(av[hi]>0) out.push({tone:'info',icon:'📅',text:`<b>${nm[hi]}s</b> are your priciest day — averaging ₹${fmt(av[hi])} a spend across your history. That's your tell.`});}
+ // 5) trend vs last month
+ const keys=Object.keys(S.data.months).sort(), pk=keys[keys.indexOf(ym)-1];
+ if(pk){const pt=(S.data.months[pk].entries||[]).reduce((s,e)=>s+e.amt,0), proj=totalSpent/mf;
+   // only compare if last month was actually tracked (≥50% of budget logged) — avoids false alarms vs sparse months
+   if(day>=5 && pt>=spend*0.5 && proj>pt*1.1) out.push({tone:'warn',icon:'⤴️',text:`You're trending ~₹${fmt(proj-pt)} above last month's ₹${fmt(pt)}. Something's running hotter — check the jars above.`});}
+ // 6) wins
+ const nod=(cur.nospend||[]).length;
+ if(nod>=2) out.push({tone:'good',icon:'🎉',text:`<b>${nod} no-spend days</b> this month — discipline compounds. Keep stacking them.`});
+ // empty / cold-start
+ if(!out.length) out.push({tone:'info',icon:ents.length?'👀':'🌱',text:ents.length?`All jars on pace, nothing overspent — quiet month so far. Nicely done.`:`Log your spends in the <b>Spend</b> tab and I get to work. The more you log, the sharper I get — I'll surface your paces, repeat-spends, weekday tells and leaks automatically.`});
+ return out;
+}
+function topCoachAlert(){const w=coachInsights().find(i=>i.tone==='warn'); return w?`${w.icon} <b>Coach:</b> ${w.text}`:null;}
 function snapshot(){
  const js=jarStatus().map(j=>`${j.nm} ₹${fmt(j.left)}/₹${fmt(j.a)}`).join(", ");
  const recent=md().entries.slice(-12).map(e=>`₹${fmt(e.amt)} ${e.note||e.jar}`).join("; ")||"none yet";
