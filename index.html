@@ -94,7 +94,7 @@ const DEFAULTS={income:100000,
  sip:20000,stepUp:5000,mfStart:0,
  equityReturn:.11,inflation:.06,freedomNumber:20000000,startAge:30,
  rolloffs:[],
- mc:{lucky:0,median:0,unlucky:0},geminiKey:"",geminiModel:"gemini-2.0-flash"};
+ mc:{lucky:0,median:0,unlucky:0}};
 function loadConfig(){const d=JSON.parse(JSON.stringify(DEFAULTS));try{const s=JSON.parse(localStorage.getItem("config"));if(s)for(const k in s)d[k]=s[k];}catch(e){}return d;}
 function saveConfig(){localStorage.setItem("config",JSON.stringify(CONFIG));}
 let CONFIG=loadConfig();
@@ -412,25 +412,15 @@ function coach(){
  const col=t=>t==='warn'?'var(--amb)':t==='good'?'var(--grn)':'var(--line)';
  const cards=ins.map(i=>`<div class="card" style="border-left:3px solid ${col(i.tone)};font-size:13.5px;line-height:1.65;display:flex;gap:11px;align-items:flex-start"><span style="font-size:19px;line-height:1.2">${i.icon}</span><span>${i.text}</span></div>`).join("");
  let h=`<div class="eyebrow">Your coach · watching your money 👀</div>${cards}`;
- if(!CONFIG.geminiKey){
-   h+=`<div class="card"><div class="eyebrow" style="margin-bottom:8px">Talk to an AI · free · your own account 💬</div>
-     <div style="font-size:13px;line-height:1.65;color:var(--mut);margin-bottom:4px">Want to <b>type questions</b> too ("can I afford ₹4k headphones?", "what do I do with a raise?")? No key needed. Tap copy, open any chat app you already use, and paste — it answers as <b>your</b> coach with your real numbers loaded.</div>
+ h+=`<div class="card"><div class="eyebrow" style="margin-bottom:8px">Want to ask questions too? · free 💬</div>
+     <div style="font-size:13px;line-height:1.65;color:var(--mut);margin-bottom:4px">For typed questions ("can I afford ₹4k headphones?", "what do I do with a raise?"), tap copy, open any chat app you already use, and paste — it answers as <b>your</b> coach with your real numbers loaded.</div>
      <button onclick="copyBriefing()">📋 Copy my coach briefing</button>
      <div class="chips" style="margin-top:12px">
        <a class="chip" href="https://chatgpt.com" target="_blank" rel="noopener">ChatGPT ↗</a>
        <a class="chip" href="https://claude.ai/new" target="_blank" rel="noopener">Claude ↗</a>
-       <a class="chip" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini ↗</a>
        <a class="chip" href="https://www.perplexity.ai" target="_blank" rel="noopener">Perplexity ↗</a></div>
-     <div class="note">Pasting sends your numbers to whichever app you pick — your account, your choice (same trade as any AI chat). The app itself still never sends anything on its own. Want it built right into this tab instead? Add a free Gemini key in ⚙ Settings — optional.</div></div>`;
-   return h;
- }
- const intro=`Hey Rohit — I've got your full picture: freedom age ${fireAge().toFixed(0)}, ${savingsRate()}% savings rate, this month's jars and spends. Ask me anything, or tap a starter.`;
- const msgs=S.data.chat.map(m=>`<div class="msg ${m.role==='user'?'me':'ai'}">${esc(m.text)}</div>`).join("")||`<div class="msg ai">${intro}</div>`;
- const starters=["How am I doing this month?","What should I do with a ₹15k raise?","Can I afford ₹4,000 headphones?"];
- const chips=starters.map(c=>`<span class="chip" onclick="askCoach(${JSON.stringify(c).replace(/"/g,'&quot;')})">${c}</span>`).join("");
- return h+`<div class="eyebrow" style="margin-top:22px">Ask your coach</div><div class="chat">${msgs}${S.thinking?`<div class="msg think">coaching…</div>`:""}</div>
-   <div class="chips">${chips}</div>
-   <div class="askbar"><input id="cask" type="text" placeholder="Ask your coach…" onkeydown="if(event.key==='Enter')sendAsk()"><button onclick="sendAsk()">Ask</button></div>`;
+     <div class="note">Pasting sends your numbers to whichever app you pick — your account, your choice. The app itself never sends anything on its own.</div></div>`;
+ return h;
 }
 // ── PATTERN COACH — deterministic, on-device, free. Reasons over his real logged
 // data every render; gets sharper as history accumulates. No LLM/key needed. ──
@@ -480,28 +470,11 @@ function snapshot(){
 }
 function coachCtx(){return `You are Rohit's personal financial coach living inside his own app. Rohit is 31, in India (INR; SIP; lakhs & crores). His #1 goal: RETIRE EARLY (FIRE).
 STYLE: brutally honest, sharp critical-thinking advisor — NEVER a yes-man. Give a specific recommendation with numbers + short reasoning. Tie spends to his freedom date when relevant (~₹764 ≈ 1 freedom-day). Be concise (2-5 sentences), warm but direct; call out bad ideas plainly. You are NOT a SEBI-registered advisor — he executes decisions himself. Never invent figures — use the live data below.\n\n${snapshot()}`;}
-async function callGemini(history){
- const model=CONFIG.geminiModel||"gemini-2.0-flash";
- const url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=`+encodeURIComponent(CONFIG.geminiKey);
- const body={system_instruction:{parts:[{text:coachCtx()}]},
-   contents:history.slice(-12).map(m=>({role:m.role==="user"?"user":"model",parts:[{text:m.text}]})),
-   generationConfig:{temperature:0.55,maxOutputTokens:700}};
- const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
- const j=await r.json();
- if(j.error)throw new Error(j.error.message||"API error");
- return (j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts[0].text)||"(no reply)";
-}
 window.copyBriefing=function(){
  const t=coachCtx()+"\n\nIn one line, confirm you've got my picture — then ask me what I need help with. Keep every answer brutally honest and tied to my freedom date.";
- const ok=()=>alert("Copied ✓\n\nNow open ChatGPT / Claude / Gemini / Perplexity, paste it as your first message, and ask away. It'll coach you with your real numbers.");
+ const ok=()=>alert("Copied ✓\n\nNow open ChatGPT / Claude / Perplexity, paste it as your first message, and ask away. It'll coach you with your real numbers.");
  const fb=()=>{try{const ta=document.createElement("textarea");ta.value=t;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.focus();ta.select();document.execCommand("copy");ta.remove();ok();}catch(e){alert("Couldn't auto-copy. Long-press to select & copy this:\n\n"+t);}};
  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,fb);}else fb();}
-window.sendAsk=function(){const el=document.getElementById("cask");if(el&&el.value.trim())askCoach(el.value.trim())};
-window.askCoach=async function(q){
- S.data.chat.push({role:"user",text:q});save();S.thinking=true;render();window.scrollTo(0,9e9);
- try{const a=await callGemini(S.data.chat);S.data.chat.push({role:"coach",text:a})}
- catch(e){S.data.chat.push({role:"coach",text:"⚠️ "+e.message+(/key|API|model|denied|invalid/i.test(e.message)?"  (check your Gemini key/model in ⚙ Settings)":"")})}
- S.thinking=false;save();render();window.scrollTo(0,9e9)};
 function settings(){
  const j=CONFIG.jars.map(x=>`<label>${x[1]} ${x[2]} jar (₹/mo)</label><input id="set_${x[0]}" type="number" inputmode="numeric" value="${x[3]}">`).join("");
  return `<div class="card"><div class="eyebrow">Income & investing</div>
@@ -521,9 +494,6 @@ function settings(){
    <div class="lrow"><span>− Safety pots</span><span class="v">₹${fmt(CONFIG.sinkMonthly||0)}</span></div>
    <div class="lrow"><span><b>= Spendable (your jars)</b></span><span class="v" style="color:var(--grn)">₹${fmt(spendable())}</span></div></div>
  <div class="card"><div class="eyebrow">Monthly jar amounts</div>${j}</div>
- <div class="card"><div class="eyebrow">AI coach</div>
-   <label>Gemini API key — free at aistudio.google.com/apikey</label><input id="set_key" type="text" placeholder="paste your free key" value="${CONFIG.geminiKey||''}">
-   <label>Model</label><input id="set_model" type="text" value="${CONFIG.geminiModel||'gemini-2.0-flash'}"></div>
  <button onclick="saveSettings()">Save & recompute</button>
  <button class="ghost" onclick="resetSettings()">Reset to defaults</button>
  <div class="note">Change your salary or SIP here anytime — the freedom age, savings rate and jars recompute instantly. Ask your coach what to actually DO with a change.</div>
@@ -578,8 +548,6 @@ window.saveSettings=function(){const num=id=>+document.getElementById(id).value|
  if(document.getElementById("set_parents"))CONFIG.fixed={parents:num("set_parents"),carEmi:num("set_carEmi"),emi1:num("set_emi1"),emi2:num("set_emi2")};
  CONFIG.jars=CONFIG.jars.map(x=>[x[0],x[1],x[2],num("set_"+x[0])]);
  rescaleJars();   // jars always sum to spendable (income − fixed − SIP − pots), proportions kept
- const kf=document.getElementById("set_key"),mf=document.getElementById("set_model");
- if(kf)CONFIG.geminiKey=kf.value.trim(); if(mf)CONFIG.geminiModel=mf.value.trim()||"gemini-2.0-flash";
  saveConfig();S.tab="home";S.verdict=null;S.msg=null;render()}
 window.resetSettings=function(){localStorage.removeItem("config");CONFIG=loadConfig();S.tab="home";render()}
 window.potAdd=function(){const v=prompt("Add how much to your Big-stuff pot? (₹)");const n=+v;if(n>0){S.data.pots=S.data.pots||{big:0,carSpent:0};S.data.pots.big=(S.data.pots.big||0)+n;save();render();}}
