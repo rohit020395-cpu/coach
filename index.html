@@ -413,8 +413,15 @@ function coach(){
  const cards=ins.map(i=>`<div class="card" style="border-left:3px solid ${col(i.tone)};font-size:13.5px;line-height:1.65;display:flex;gap:11px;align-items:flex-start"><span style="font-size:19px;line-height:1.2">${i.icon}</span><span>${i.text}</span></div>`).join("");
  let h=`<div class="eyebrow">Your coach · watching your money 👀</div>${cards}`;
  if(!CONFIG.geminiKey){
-   h+=`<div class="card" style="background:var(--card2)"><div class="eyebrow" style="margin-bottom:8px">Want to ask it questions too?</div>
-     <div style="font-size:13px;line-height:1.65;color:var(--mut)">The coaching above is built in — free, instant, and it never leaves your phone. To also <b>type questions</b> ("can I afford ₹4k headphones?", "what do I do with a raise?"), add a free Gemini key at <b>aistudio.google.com/apikey</b> → ⚙ Settings. Totally optional — your money coach works without it.</div></div>`;
+   h+=`<div class="card"><div class="eyebrow" style="margin-bottom:8px">Talk to an AI · free · your own account 💬</div>
+     <div style="font-size:13px;line-height:1.65;color:var(--mut);margin-bottom:4px">Want to <b>type questions</b> too ("can I afford ₹4k headphones?", "what do I do with a raise?")? No key needed. Tap copy, open any chat app you already use, and paste — it answers as <b>your</b> coach with your real numbers loaded.</div>
+     <button onclick="copyBriefing()">📋 Copy my coach briefing</button>
+     <div class="chips" style="margin-top:12px">
+       <a class="chip" href="https://chatgpt.com" target="_blank" rel="noopener">ChatGPT ↗</a>
+       <a class="chip" href="https://claude.ai/new" target="_blank" rel="noopener">Claude ↗</a>
+       <a class="chip" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini ↗</a>
+       <a class="chip" href="https://www.perplexity.ai" target="_blank" rel="noopener">Perplexity ↗</a></div>
+     <div class="note">Pasting sends your numbers to whichever app you pick — your account, your choice (same trade as any AI chat). The app itself still never sends anything on its own. Want it built right into this tab instead? Add a free Gemini key in ⚙ Settings — optional.</div></div>`;
    return h;
  }
  const intro=`Hey Rohit — I've got your full picture: freedom age ${fireAge().toFixed(0)}, ${savingsRate()}% savings rate, this month's jars and spends. Ask me anything, or tap a starter.`;
@@ -484,6 +491,11 @@ async function callGemini(history){
  if(j.error)throw new Error(j.error.message||"API error");
  return (j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts[0].text)||"(no reply)";
 }
+window.copyBriefing=function(){
+ const t=coachCtx()+"\n\nIn one line, confirm you've got my picture — then ask me what I need help with. Keep every answer brutally honest and tied to my freedom date.";
+ const ok=()=>alert("Copied ✓\n\nNow open ChatGPT / Claude / Gemini / Perplexity, paste it as your first message, and ask away. It'll coach you with your real numbers.");
+ const fb=()=>{try{const ta=document.createElement("textarea");ta.value=t;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.focus();ta.select();document.execCommand("copy");ta.remove();ok();}catch(e){alert("Couldn't auto-copy. Long-press to select & copy this:\n\n"+t);}};
+ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,fb);}else fb();}
 window.sendAsk=function(){const el=document.getElementById("cask");if(el&&el.value.trim())askCoach(el.value.trim())};
 window.askCoach=async function(q){
  S.data.chat.push({role:"user",text:q});save();S.thinking=true;render();window.scrollTo(0,9e9);
